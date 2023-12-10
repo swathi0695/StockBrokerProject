@@ -7,7 +7,7 @@ To set up the project locally, follow these steps:
 
 Clone the repository:
 ```bash
-git clone https://github.com/yourusername/stocker-broker.git
+git clone https://github.com/swathi0695/StockBrokerProject.git
 ```
 ### 2. Install dependencies:
 ```bash
@@ -32,10 +32,10 @@ Use the interface provided by Django for creating normal users(Investors) with '
 #### 1. ```/api/stocks/ (GET, POST)```
 Description: List all stocks and create a new stock entry.
 
-Parameters: 
-name: str (required) - The name of the stock.
-  price: float (required) - The price of the stock.
-  quantity: float (optional) - Number of stock units.
+Parameters:   
+name: str (required) - The name of the stock.  
+  price: float (required) - The price of the stock.  
+  quantity: float (optional) - Number of stock units. Default value is 10000.   
 ```bash
 POST: Request body
 {
@@ -53,18 +53,18 @@ http://127.0.0.1:8000/api/stocks/Microsoft/
 
 #### 3.```/api/market/ (GET, POST)```
 
-Description: List all market entries and create a new market entry.
-Parameters: 
-stock: name (required) - The ID of the stock associated with the market entry.
-price: float (required) - The price value for the market entry.
+Description: List all market entries and create a new market entry.  
+Parameters:   
+stock: name (required) - The ID of the stock associated with the market entry.  
+price: float (required) - The price value for the market entry.  
 
 #### 4.```/api/transactions/ (POST)```
 
-Description: Buy or sell stocks for a user.
-Parameters:
-stock: int (required) - The ID of the stock.
-quantity: int (optional) - The quantity of stocks to buy or sell.
-transaction_type: str (required) - The type of transaction ('Buy' or 'Sell').
+Description: Buy or sell stocks for a user.  
+Parameters:  
+stock: int (required) - The ID of the stock.  
+quantity: int (optional) - The quantity of stocks to buy or sell.  
+transaction_type: str (required) - The type of transaction ('Buy' or 'Sell').  
 
 #### 5.```/api/stocks/<str:pk>/price/ (GET)```
 
