@@ -2,9 +2,9 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from django.db.models.query import QuerySet
 
 from .models import Stock, Transaction, Investor, Market
-from django.db.models.query import QuerySet
 from .serializers import (
     StockSerializer, 
     TransactionSerializer, 
@@ -38,7 +38,7 @@ class StockListCreateView(generics.ListCreateAPIView):
     market_serializer = MarketSerializer
     permission_classes = [IsAdminUser]
 
-    def get(self, request: Request) -> List[Dict]:
+    def get(self, request: Request) -> Response:
         stocks = self.get_queryset()
         serialized_stocks = self.get_serializer(stocks, many=True).data
 
@@ -46,18 +46,15 @@ class StockListCreateView(generics.ListCreateAPIView):
             stock = Stock.objects.get(pk=stock_data['name'])
             if Market.objects.filter(stock=stock).exists():
                 latest_price = Market.objects.filter(stock=stock).order_by('-timestamp').first().price
-                # print("HEreeee-----------2222")
                 stock_data['latest_price'] = latest_price
-                # print("stock_data----------", stock_data)
             else:
                 stock_data['latest_price'] = Stock.objects.get(pk=stock_data['name']).price
         
         return Response(serialized_stocks)
     
 
-    def post(self, request: Request, *args: Any, **kwargs: Any) -> Any:
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         serializer = StockSerializer(data=request.data)
-        print(serializer)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -103,7 +100,7 @@ class MarketDetailView(generics.ListCreateAPIView):
     - None
 
     POST Parameters:
-    - 'stock': int (required) - The ID of the stock associated with the market entry.
+    - 'stock': str (required) - The name of the stock associated with the market entry.
     - 'timestamp': datetime (required) - Currently not taking datetime.now() and manually adding for ease of puprose
     - 'price': float (required) - The price value for the market entry.
 
@@ -164,17 +161,17 @@ class StockPriceView(generics.RetrieveAPIView):
         - Serialized data of the stock with the latest_price field included if available.
         - If the stock does not exist, returns a 404 NOT FOUND response.
         """
-        pk_value = self.kwargs['pk']
+        stock_name = self.kwargs['pk']
 
         try:
-            stock = Stock.objects.get(pk=pk_value)
+            stock = Stock.objects.get(pk=stock_name)
         except Stock.DoesNotExist:
-            return Response({'detail': 'Stock not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'Detail': 'Stock not found.'}, status=status.HTTP_404_NOT_FOUND)
         
-        stocks = self.queryset.get(pk=pk_value)
+        stocks = self.queryset.get(pk=stock_name)
         serialized_stocks = self.get_serializer(stocks).data
         
-        stock = Stock.objects.get(pk=pk_value)
+        stock = Stock.objects.get(pk=stock_name)
         latest_price = Market.objects.filter(stock=stock).order_by('-timestamp').first().price
         serialized_stocks['latest_price'] = latest_price
         return Response(serialized_stocks)
@@ -200,6 +197,7 @@ class InvestorStockListView(generics.ListAPIView):
     def get(self, request: Request) -> Response:
         queryset = super().get_queryset()
         name = self.request.query_params.get('name')
+
         if name:
             stocks = queryset.filter(name__icontains=name)
         else:
@@ -269,6 +267,7 @@ class BuySellStockView(generics.CreateAPIView):
 
     def perform_create(self, serializer: Any) -> None:
         serializer.save(investor=self.request.user)
+
 
     def create(self, request: Request, *args, **kwargs) -> Response:
         data = request.data
