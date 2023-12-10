@@ -15,14 +15,14 @@ class Market(models.Model):
 
 
 class Investor(models.Model):
-    name = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    name = models.ForeignKey("auth.User", on_delete=models.CASCADE)
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE)
     purchased_shares = models.IntegerField(default=0)
 
 
 class Transaction(models.Model):
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE)
-    investor = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    investor = models.ForeignKey("auth.User", on_delete=models.CASCADE)
     transaction_type = models.CharField(max_length=10)  # Buy or Sell
     quantity = models.PositiveIntegerField()
     timestamp = models.DateTimeField(auto_now_add=True)
